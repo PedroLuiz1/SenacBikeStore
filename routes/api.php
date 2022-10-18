@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CategoriaController;
+use App\Http\Controllers\Api\ProdutoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,9 +15,14 @@ use App\Http\Controllers\Api\CategoriaController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::middleware('localization')->group(function() {
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 Route::ApiResource('categorias', CategoriaController::class);
+
+Route::ApiResource('produtos', ProdutoController::class);
+
+});

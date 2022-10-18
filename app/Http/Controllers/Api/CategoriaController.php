@@ -7,6 +7,7 @@ use App\http\Controllers\Controller;
 use App\http\Resources\CategoriaResource;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CategoriaController extends Controller
 {
@@ -15,13 +16,26 @@ class CategoriaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $categorias = Categoria::all();
 
+        //Captura a coluna para ordenação
+        $sortParameter = $request->input('ordenacao', 'nome_da_categoria');
+        $sortDirection = Str::startswith($sortParameter, '-') ? 'desc' : 'asc';
+        $sortColumn = ltrim($sortParameter, '-');
+
+        //Determina se faz a query ordenada ou aplica a default
+        if($sortColumn == 'nome_da_categoria') {
+            $categorias = Categoria::orderBy('nomedacategoria', $sortDirection)->get();
+        }
+        else {
+            $categorias = Categoria::all();
+        }
+
         return response() -> json([
             'status' => 200,
-            'mensagem' => 'Lista de categorias retornada',
+            'mensagem' => __("categoria.listreturn"),
             'categorias' => CategoriaResource::collection($categorias)
         ], 200);
     }
@@ -52,7 +66,7 @@ class CategoriaController extends Controller
 
         return response() -> json([
             'status' => 200,
-            'mensagem' => 'Categoria criada',
+            'mensagem' => __("categoria.created"),
             'categoria' => new CategoriaResource ($categoria)
         ], 200);
     }
@@ -65,7 +79,13 @@ class CategoriaController extends Controller
      */
     public function show(Categoria $categoria)
     {
-        //
+        $categoria = Categoria::find($categoria->pkcategoria);
+
+        return response() -> json ([
+            'status' => 200,
+            'mensagem' => __("categoria.returned"),
+            'categoria' => new CategoriaResource ($categoria)
+        ]);
     }
 
     /**
@@ -94,7 +114,7 @@ class CategoriaController extends Controller
 
         return response() -> json ([
             'status' => 200,
-            'mensagem' => 'Categoria atualizada'
+            'mensagem' => __("categoria.updated")
         ], 200);
     }
 
@@ -110,7 +130,7 @@ class CategoriaController extends Controller
 
         return response() -> json([
             'status' => 200,
-            'mensagem' => 'categoria apagada'
+            'mensagem' => __("categoria.deleted")
         ], 200);
     }
 }
